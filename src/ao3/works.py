@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import json
+import re
 import urllib.parse
 
 from bs4 import BeautifulSoup, Tag
@@ -287,6 +288,26 @@ class Work(object):
     def hits(self):
         """The number of hits this work has received."""
         return int(self._lookup_stat('hits', 0))
+
+    @property
+    def series(self):
+        """The series that the work is part of"""
+        pos = self._soup.find('span', attrs={'class': 'position'})
+        if pos is None:
+            return None
+        return TaggedObj(pos.a.text,
+                         absurl(pos.a['href']))
+
+    @property
+    def series_idx(self):
+        """The Index in the series of the work"""
+        pos = self._soup.find('span', attrs={'class': 'position'})
+        if pos is None:
+            return None
+        mtch = re.match("Part (\d*) of", pos.text)
+        if mtch is None:
+            return None
+        return int(mtch.group(1))
 
     @property
     def published_chapters(self):
