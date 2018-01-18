@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import json
+import urllib.parse
 
 from bs4 import BeautifulSoup, Tag
 import requests
@@ -13,6 +14,22 @@ class WorkNotFound(Exception):
 
 class RestrictedWork(Exception):
     pass
+
+
+class TaggedObj(object):
+    def __init__(self, value, url=None):
+        self.value = value
+        self.url = url
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return self.value
+
+
+def absurl(url):
+    return urllib.parse.urljoin("https://archiveofourown.org", url)
 
 
 class Work(object):
@@ -93,7 +110,8 @@ class Work(object):
                  for t in byline_tag.contents
                  if isinstance(t, Tag)]
         assert len(a_tag) == 1
-        return a_tag[0].contents[0].strip()
+        return TaggedObj(a_tag[0].contents[0].strip(),
+                         absurl(a_tag[0]['href']))
 
     @property
     def summary(self):
@@ -146,7 +164,9 @@ class Work(object):
         # We want to get the data from the individual <li> elements.
         li_tags = dd_tag.findAll('li')
         a_tags = [t.contents[0] for t in li_tags]
-        return [t.contents[0] for t in a_tags]
+        return [TaggedObj(t.contents[0],
+                          absurl(t['href']))
+                for t in a_tags]
 
     @property
     def rating(self):
