@@ -98,21 +98,23 @@ class Work(object):
         return title_tag.contents[0].strip()
 
     @property
-    def author(self):
-        """The author of this work."""
-        # The author of the work is kept in the byline, in the form
+    def authors(self):
+        """The authors of this work."""
+        # The authors of the work is kept in the byline, in the form
         #
         #     <h3 class="byline heading">
+        #       <a href="/users/[author_name]" rel="author">[author_name]</a>
+        #       ","
         #       <a href="/users/[author_name]" rel="author">[author_name]</a>
         #     </h3>
         #
         byline_tag = self._soup.find('h3', attrs={'class': 'byline'})
-        a_tag = [t
+        a_tags = [t
                  for t in byline_tag.contents
                  if isinstance(t, Tag)]
-        assert len(a_tag) == 1
-        return TaggedObj(a_tag[0].contents[0].strip(),
-                         absurl(a_tag[0]['href']))
+        return [TaggedObj(t.contents[0].strip(),
+                         absurl(t['href']))
+                for t in a_tags]
 
     @property
     def summary(self):
