@@ -54,8 +54,8 @@ class Work(object):
         # confirm that you really want to see the adult works.  Yes, we do.
         if 'This work could have adult content' in req.text:
             req = sess.get(
-                'https://archiveofourown.org/works/%s?view_adult=true' %
-                self.id)
+                req.url,
+                params={'view_adult': 'true'})
 
         # Check for restricted works, which require you to be logged in
         # first.  See https://archiveofourown.org/admin_posts/138

@@ -11,6 +11,7 @@ class AO3(object):
     def __init__(self):
         self.user = None
         self.session = requests.Session()
+        self.session.cookies.set('accepted_tos', '20180523')
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)
